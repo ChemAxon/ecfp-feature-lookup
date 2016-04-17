@@ -33,17 +33,23 @@ Note that you can point to the location of `jchem.jar` in an existing JChem Suit
 
 ### Launching
 
-  - To get command line help launch 
+#### To get command line help launch 
   
-    build/install/ecfpf/bin/ecfpf.bat -h
+```
+build/install/ecfpf/bin/ecfpf.bat -h
+```
     
-  - To generate SMARTS illustration of ECFP features launch
+#### To generate SMARTS illustration of ECFP features launch
   
-    cat build/install/ecfpf/data/caffeine.smiles | build/install/ecfpf/bin/ecfpf -idname > features-caffeine-ecfp4.smarts
+```
+cat build/install/ecfpf/data/caffeine.smiles | build/install/ecfpf/bin/ecfpf -idname > features-caffeine-ecfp4.smarts
+```
 
-  - To use a custom ECFP config XML use command line option `-c <CONFIGFILE>`
+#### To use a custom ECFP config XML use command line option `-c <CONFIGFILE>`
   
-    cat build/install/ecfpf/data/caffeine.smiles | build/install/ecfpf/bin/ecfpf -c build/install/ecfpf/data/ecfp-6.xml -idname > features-caffeine-ecfp6.smarts
+```
+cat build/install/ecfpf/data/caffeine.smiles | build/install/ecfpf/bin/ecfpf -c build/install/ecfpf/data/ecfp-6.xml -idname > features-caffeine-ecfp6.smarts
+```
   
 ### Other property setting mechanisms
 
