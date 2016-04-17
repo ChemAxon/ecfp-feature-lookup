@@ -1,0 +1,68 @@
+apply plugin: 'java'
+apply plugin: 'application'
+
+// Build configuration: This project depends on a ChemAxon proprietary API which is not available from a public open
+// repository. Users might prefer to use an already downloaded distribution or to access a ChemAxon provided repository.
+// See http://mrhaki.blogspot.hu/2010/09/gradle-goodness-different-ways-to-set.html on how to set project properties
+if (project.hasProperty('cxn_jchem_jar')) {
+    // Location of jchem.jar is specified with -Pcxn_jchem_jar=<JCHEM JAR FILE>
+    // Check if pointed location is an existing file
+    
+    def jchem_jar_file = new File(project.getProperty('cxn_jchem_jar'));
+    if (!jchem_jar_file.exists()) {
+        ant.fail("File not found: " + jchem_jar_file + ". Please specify location of jchem.jar")
+    }
+    if (!jchem_jar_file.isFile()) {
+        ant.fail("Not a regular file: " + jchem_jar_file + ". Please specify location of jchem.jar")
+    }
+    println "Using manually downloaded JChem distribution from " + jchem_jar_file
+
+    // For compilation depend only the specified jchem.jar file
+    // This file reference all additional dependencies using Manifest Class-Path attribute.
+    dependencies {
+        compile files(jchem_jar_file)
+    }
+    
+    // Gradle Application plugin seems to be unaware of the Manifest Class-Path attribute.
+    // Without this workaround the additionally references libraries are not copied to the distribution.
+    // Extend the underlying Distribution plugin content specification. Based on Gradle's Application plugin 
+    // sources. See file src/plugins/org/gradle/api/plugins/ApplicationPlugin.groovy, available online at
+    // https://github.com/gradle/gradle/blob/master/subprojects/plugins/src/main/groovy/org/gradle/api/plugins/ApplicationPlugin.groovy
+    
+    project.distributions[DistributionPlugin.MAIN_DISTRIBUTION_NAME].contents.with {
+        into('lib') {
+            from fileTree(dir : jchem_jar_file.getParent(), includes : ['*.jar'])
+        }
+    }
+} else if (project.hasProperty('cxn_repo_user') && project.hasProperty('cxn_repo_pass')) {
+    // Use repository.chemaxon.com
+    println "Using repository.chemaxon.com and Maven Central to fetch jchem.jar and other dependencies using specified username and password"
+    
+    repositories {
+        maven {
+            url 'https://repository.chemaxon.com/artifactory/ext-release-local'
+            credentials {
+                username project.getProperty('cxn_repo_user')
+                password project.getProperty('cxn_repo_pass')
+            }
+        }         
+        mavenCentral() // Some 3rd party dependencies might be missing; access Maven Central for them
+    }
+    
+    dependencies {
+        compile(group: 'com.chemaxon', name: 'jchem', version: '16.4.11.0')
+    }
+    
+    // No need for Application plugin related workaround; proper POM with dependencies is retrieved from ChemAxon repository
+    
+} else {
+    // Reference for jchem.jar is not specified
+    ant.fail('Location/access of jchem.jar is not specified. Use "-Pcxn_jchem_jar=<JCHEM.JAR FILE LOCATION>" or "-Pcxn_repo_user=<USERNAME> -Pcxn_repo_pass="<PASSWORD>" or an alternative property setting mechanism. See README.md for details.');
+}
+
+mainClassName = 'com.chemaxon.examples.EcfpFeatureLookup'
+applicationName = 'ecfpf'
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.12'
+}
