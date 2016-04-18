@@ -33,6 +33,8 @@ Note that you can point to the location of `jchem.jar` in an existing JChem Suit
 
 ### Launching
 
+After executing the `installDist` task a self contained distribution (including the compiled sources, dependencies, launch scripts) is build in directory `build/install/ecfpf`.
+
 #### To get command line help launch 
   
 ```
