@@ -33,6 +33,9 @@ public final class EcfpFeatureLookupParameters {
     @Parameter(names = "-idname", description = "Use molecule name as an ID. Use read count by default.")
     public boolean idname = false;
 
+    @Parameter(names = "-idsmiles", description = "Use molecule SMILES source as an ID. Use reqd count by default.")
+    public boolean idsmiles = false;
+
     @Parameter(names = "-idprop", description = "Use specified molecule property as an ID. Use read count by default.")
     public String idprop = null;
 
@@ -51,6 +54,8 @@ public final class EcfpFeatureLookupParameters {
             return m.getName();
         } else if (this.idprop != null) {
             return m.getProperty(this.idprop);
+        } else if (this.idsmiles) {
+            return m.toFormat("smiles");
         } else {
             return Integer.toString(count);
         }
